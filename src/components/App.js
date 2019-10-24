@@ -1,18 +1,19 @@
 import React, { Component } from 'react';
 import Artist from './Artist';
+import Search from './Search';
 import Tracks from './Tracks';
 
 const API_ADDRESS = 'https://spotify-api-wrapper.appspot.com/';
 
 class App extends Component {
-    state = { artistQuery: '', artist: null, tracks: [] };
-    
-    updateArtistQuery = event => {
-        this.setState({ artistQuery: event.target.value });
-    }
+    state = { artist: null, tracks: [] };
 
-    searchArtist = () => {
-        const { artistQuery } = this.state;
+
+    componentDidMount() {
+        this.searchArtist('Avantasia');
+      }
+
+    searchArtist = artistQuery => {
         fetch(`${API_ADDRESS}/artist/${artistQuery}`)
             .then(res => res.json())
             .then(json => {
@@ -23,17 +24,12 @@ class App extends Component {
 
                     fetch(`${API_ADDRESS}/artist/${artist.id}/top-tracks`)
                         .then(response => response.json())
-                        .then(json => this.setState({ tracks: json.tracks}))
+                        .then(json => this.setState({ tracks: json.tracks }))
                         .catch(error => alert(error.message));
                 }
             });
     }
 
-    handleKeyPress = event => {
-        if (event.key === 'Enter') {
-            this.searchArtist();
-        }
-    }
 
     render () {
         console.log('this.state', this.state);
@@ -41,12 +37,7 @@ class App extends Component {
         return (
             <div>
                 <h2>Music Master</h2>
-                <input 
-                    onChange={this.updateArtistQuery} 
-                    onKeyPress={this.handleKeyPress}
-                    placeholder='Search for an Artist' 
-                />
-                <button onClick={ this.searchArtist }>Search</button>
+                <Search searchArtist={this.searchArtist} />
                 <Artist artist={this.state.artist} />
                 <Tracks tracks={this.state.tracks} />
             </div>
